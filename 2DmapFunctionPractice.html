@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no" />
+    <title>Intro to MapViewp - Create a 2D map</title>
+    <style>
+      html,
+      body,
+      #viewDiv {
+        padding: 0;
+        margin: 0;
+        height: 100%;
+        width: 100%;
+      }
+     
+    </style>
+    <link rel="stylesheet" href="http://localhost/4.18/esri/themes/light/main.css" />
+    <script src="http://localhost/4.18/init.js"></script>
+    <script src="../网页/"></script>
+    <script>
+      require([
+        "esri/Map", 
+        "esri/views/MapView",
+        //"esri/layers/MapImageLager",
+        "esri/widgets/BasemapGallery",
+        "esri/widgets/Home",
+        "esri/widgets/Compass",
+        "esri/widgets/LayerList",
+        "esri/widgets/Legend",
+        "esri/widgets/Search",
+        "esri/layers/FeatureLayer",
+        "esri/widgets/BasemapToggle"],
+         (
+            Map,
+            MapView,
+            //MapImageLager,
+            BasemapGallery,
+            Home,
+            Compass,
+            LayerList,
+            Legend,
+            Search,
+            FeatureLayer,
+            BasemapToggle
+        ) => {
+        const map1 = new Map({
+
+        })
+        const map = new Map({
+          basemap:"topo-vector"
+        });
+        const view = new MapView({
+          container: "viewDiv", // Reference to the view div created in step 5
+          map: map, // Reference to the map object created before the view
+          zoom: 16, // Sets zoom level based on level of detail (LOD)
+          center: [117.53408421490477, 34.90227414897807] // Sets center point of view using longitude,latitude
+        });
+
+        var waterLayer =new FeatureLayer({
+          url:"http://localhost:6080/arcgis/rest/services/zzxy/MyMapService/MapServer/1",
+          title:"water",
+          visible:true
+        })
+        var countryLayer =new FeatureLayer({
+          url:"http://localhost:6080/arcgis/rest/services/zzxy/MyMapService/MapServer",
+          title:"road",
+          visible:true
+        })
+        var mianLayer =new FeatureLayer({
+          url:"http://localhost:6080/arcgis/rest/services/zzxy/MyMapService/MapServer/2",
+          title:"playground",
+          visible:true
+        })
+        var buildingLayer =new FeatureLayer({
+          url:"http://localhost:6080/arcgis/rest/services/zzxy/MyMapService/MapServer/4",
+          title:"building",
+          visible:true
+        })
+        const toggle = new BasemapToggle({
+             view:view,
+             nextBasemap:"hybrid"
+        })
+        const basemapGallery = new BasemapGallery({
+          view:view
+        })
+        const homeWidget = new Home({
+          view:view
+        })
+        const compass = new Compass({
+          view:view
+        })
+        const layerList = new LayerList({
+          view:view
+        })
+        const legend =new Legend({
+          view:view
+        })
+        const searchWidgt =new Search({
+          view:view
+        })
+
+        map.add(countryLayer)
+        map.add(mianLayer)
+        map.add(buildingLayer)
+        map.add(waterLayer)
+
+        view.ui.add(toggle,"top-left");
+        view.ui.add(compass,"top-right");
+        view.ui.add(layerList,"top-right")
+        view.ui.add(legend,{ position: "bottom-left"});
+        view.ui.add(searchWidgt,{
+          position:"top-right",
+          index:0
+        })
+        view.popup.autoOpenEnabled =false;
+        view.on("click",(event)=>{
+             //点击视图获取位置
+             const lat = Math.round(event.mapPoint.latitude*1000)/1000;
+             const lon = Math.round(event.mapPoint.longitude*1000)/1000;
+         view.popup.open({
+                //设置弹出窗口的标题为位置的坐标
+                title:"获取此处经纬度为: ["+lon+","+lat+"]",
+                //设置弹出窗口在这个点击位置
+                location:event.mapPoint
+            });
+         })
+      });
+    
+    </script>
+  </head>
+  <body>
+    
+      <div id="viewDiv"></div>
+
+  </body>
+</html>
